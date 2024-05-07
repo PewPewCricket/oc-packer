@@ -1,6 +1,7 @@
 -- Declare Vars
 local shell = require("shell")
 local fs = require("filesystem")
+local ts = require("tools/transfer")
 local errOK, ocz = pcall(require, "ocz")
 if not errOK then
   io.stderr:write("ERROR: OCZ not present!")
@@ -9,15 +10,6 @@ if not errOK then
 end
 
 local args, ops = shell.parse(...)
-
-print("OpenPackage 0.1.0")
-local path = args[1]
-local name = args[2]
-local ver = args[3]
-local destdir = args[4]
-if ops.f then
-  fpath = args[5]
-end
 
 -- Functions
 local function handleError(err)
@@ -55,44 +47,109 @@ local function getDeps(f)
   return deps
 end
 
--- Code
-if ops.v then
-  print("PATH: " .. path)
-  print("NAME: " .. name)
-  print("VERSION: " .. ver)
-  print("DESTDIR: " .. destdir)
+-- Start
+print("OpenPackage 0.1.0")
+
+if ops.m and ops.x then
+  handleError("conflicting flags")
+elseif ops.m then
+
+  -- Set args
+  local path = shell.resolve(args[1])
+  local name = args[2]
+  local ver = args[3]
+  local destdir = shell.resolve(args[4])
   if ops.f then
-    print("FPATH: " .. fpath)
+    fpath = shell.resolve(args[5])
   end
-end
+  local pkgdir = "/usr/pkg/pkgbuild/" .. name .. "-" .. ver
+  local pkgtar = "/usr/pkg/pkgtars/" .. name .. ".tar"
 
--- Get Dependancies of package
-local deps = getDeps(ops.f)
+  if ops.v then
+    print("PATH: " .. path)
+    print("NAME: " .. name)
+    print("VERSION: " .. ver)
+    print("DESTDIR: " .. destdir)
+    print("PKGDIR: " .. pkgdir)
+    if ops.f then
+      print("FPATH: " .. fpath)
+    end
+  end
 
--- Generate Package Information
-print("building package structure...")
-if ops.v then
+  -- Check for errors
+  if not fs.exists(path) then
+    handleError(path .. " is an invalid path")
+  elseif not fs.exists(destdir) then
+    handleError(destdir .. " is an invalid path")
+  elseif not fs.exists("/bin/tar.lua") then
+    handleError("tar is not installed")
+  end
+
+  -- Get Dependancies of package
+  local deps = getDeps(ops.f)
+
+  -- Generate Package Information
+  print("building package structure...")
+
+  fs.makeDirectory("/tmp/pkgbuild")
+  fs.makeDirectory(pkgdir)
+
   print("generating package information...")
-end
-fs.makeDirectory("/tmp/pkgbuild")
-fs.makeDirectory("/tmp/pkgbuild/" .. name .. "-" .. ver)
-fs.makeDirectory("/tmp/pkgbuild/" .. name .. "-" .. ver .. "/pkg")
-local file = io.open("/tmp/pkgbuild/" .. name .. "-" .. ver .. "/pkginfo", "w")
-file:write(name .. "\n" .. ver)
-file:close()
 
-local file = io.open("/tmp/pkgbuild/" .. name .. "-" .. ver .. "/deps", "w")
-local i = #deps - 1
-while i > 0 do
-  file:write(deps[i] .. "\n")
-  i = i - 1
-end
+  local file = io.open(pkgdir .. "/pkginfo", "w")
+  file:write(name .. "\n" .. ver)
+  file:close()
 
--- copy data from PATH to temp dir
-if ops.v then
+  local file = io.open(pkgdir .. "/deps", "w")
+  local i = #deps - 1
+  while i > 0 do
+    file:write(deps[i] .. "\n")
+    i = i - 1
+  end
+
+  -- copy data from PATH to temp dir
   print("copying package data into build dir...")
+
+  local bops =
+  {
+    cmd = "cp",
+    i = false,
+    f = false,
+    n = false,
+    r = true,
+    u = false,
+    P = false,
+    v = ops.v,
+    x = false,
+    skip = {},
+  }
+
+  local bargs = {}
+  bargs[1] = path
+  bargs[2] = pkgdir .. "/pkg"
+
+  ts.batch(bargs, bops)
+
+  -- create tar archive
+  print("creating tar archive...")
+
+  local lastdir = shell.getWorkingDirectory()
+  shell.setWorkingDirectory(pkgdir)
+  shell.execute("tar -cf " .. pkgtar .. " " .. pkgdir .. "/")
+  shell.setWorkingDirectory(destdir)
+
+  -- Compress tar archive
+  print("compressing tar archive...")
+
+  shell.execute("ocz -a compress " .. pkgtar .. " " .. destdir .. "/" .. name .. ".tar.ocz")
+
+  -- Remove temp data
+  print("removing temp data...")
+
+  fs.remove(pkgdir)
+  fs.remove(pkgtar)
+elseif ops.x then
+  --stuff
+else
+  --stuff
 end
-if fs.exists(path) == false then
-  handleError("invalid path " .. path)
-end
-shell.execute("cp -r " .. path .. "/* /tmp/pkgbuild/" .. name .. "-" .. ver .. "/pkg/")
