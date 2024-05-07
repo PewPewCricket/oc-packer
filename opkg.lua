@@ -99,16 +99,18 @@ elseif ops.c then
 
   print("generating package information...")
 
-  local file = io.open(pkgdir .. "/pkginfo", "w")
-  file:write(name .. "\n" .. ver)
-  file:close()
-
-  local file = io.open(pkgdir .. "/deps", "w")
+  local infofile = io.open(pkgdir .. "/pkginfo", "w")
+  local depsfile = io.open(pkgdir .. "/deps", "w")
+  
+  infofile:write(name .. "\n" .. ver)
   local i = #deps - 1
   while i > 0 do
-    file:write(deps[i] .. "\n")
+    depsfile:write(deps[i] .. "\n")
     i = i - 1
   end
+  
+  infofile:close()
+  depsfile:close()
 
   -- copy data from PATH to temp dir
   print("copying package data into build dir...")
