@@ -47,6 +47,34 @@ local function getDeps(f)
   return deps
 end
 
+-- Needed Checks
+if not fs.exists("/bin/tar.lua") then
+  io.stdout:write("Tar is not installed, would you like to install it? (y/n): ")
+  local user = io.read()
+  if user == "y" then
+    print("installing tar...")
+    shell.execute("wget 'https://raw.githubusercontent.com/mpmxyz/ocprograms/master/bin/tar.lua' /bin/tar.lua")
+    shell.execute("wget 'https://raw.githubusercontent.com/mpmxyz/ocprograms/master/usr/man/tar.man'
+  else
+  handleError("tar is not installed")
+  end
+end
+
+if not errOK then
+  io.stdout:write("OCZip is not installed, would you like to install it? (y/n): ")
+  user = io.read()
+  if user == "y" then
+    print("installing OCZip...")
+    shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/ocz.lua /bin/ocz.lua")
+    shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/init.lua /lib/ocz/init.lua")
+    shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/crc32.lua /lib/ocz/crc32.lua")
+    shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/lualzw.lua /lib/ocz/lualzw.lua")
+    shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/md5.lua /lib/ocz/md5.lua")
+  else
+  handleError("OCZip is not installed")
+  end
+end
+
 -- Start
 print("OpenPackage 0.1.0")
 
