@@ -92,7 +92,9 @@ elseif ops.c then
   -- Generate Package Information
   print("building package structure...")
 
-  fs.makeDirectory("/tmp/pkgbuild")
+  fs.makeDirectory("/usr/pkg")
+  fs.makeDirectory("/usr/pkg/pkgbuild")
+  fs.makeDirectory("/usr/pkg/pkgtars")
   fs.makeDirectory(pkgdir)
 
   print("generating package information...")
