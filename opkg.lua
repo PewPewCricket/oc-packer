@@ -155,6 +155,7 @@ elseif ops.c then
 
   fs.remove(pkgdir)
   fs.remove(pkgtar)
+  fs.remove("/usr/pkg/pkgbuild/" .. name .. "-" .. ver)
 elseif ops.x then
   --stuff
 else
