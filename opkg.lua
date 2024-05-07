@@ -50,9 +50,9 @@ end
 -- Start
 print("OpenPackage 0.1.0")
 
-if ops.m and ops.x then
+if ops.c and ops.x then
   handleError("conflicting flags")
-elseif ops.m then
+elseif ops.c then
 
   -- Set args
   local path = shell.resolve(args[1])
@@ -71,6 +71,7 @@ elseif ops.m then
     print("VERSION: " .. ver)
     print("DESTDIR: " .. destdir)
     print("PKGDIR: " .. pkgdir)
+    print("PKGTAR: " .. pkgtar)
     if ops.f then
       print("FPATH: " .. fpath)
     end
@@ -135,7 +136,11 @@ elseif ops.m then
 
   local lastdir = shell.getWorkingDirectory()
   shell.setWorkingDirectory(pkgdir)
-  shell.execute("tar -cf " .. pkgtar .. " " .. pkgdir .. "/")
+  if ops.v then
+     shell.execute("tar -cvf " .. pkgtar .. " " .. pkgdir .. "/")
+  else
+     shell.execute("tar -cf " .. pkgtar .. " " .. pkgdir .. "/")
+  end
   shell.setWorkingDirectory(destdir)
 
   -- Compress tar archive
