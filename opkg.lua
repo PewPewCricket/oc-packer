@@ -3,11 +3,6 @@ local shell = require("shell")
 local fs = require("filesystem")
 local ts = require("tools/transfer")
 local errOK, ocz = pcall(require, "ocz")
-if not errOK then
-  io.stderr:write("ERROR: OCZ not present!")
-  io.stderr:write("ERROR: " .. ocz)
-  os.exit()
-end
 
 local args, ops = shell.parse(...)
 
