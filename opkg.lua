@@ -48,7 +48,7 @@ if not fs.exists("/bin/tar.lua") then
   local user = io.read()
   if user == "y" then
     print("installing tar...")
-    shell.execute("wget https://raw.githubusercontent.com/mpmxyz/ocprograms/master/bin/tar.lua /bin/tar.lua")
+    shell.execute("wget https://raw.githubusercontent.com/mpmxyz/ocprograms/master/home/bin/tar.lua /bin/tar.lua")
     shell.execute("wget https://raw.githubusercontent.com/mpmxyz/ocprograms/master/usr/man/tar.man /usr/man/tar.man'")
   else
   handleError("tar is not installed")
