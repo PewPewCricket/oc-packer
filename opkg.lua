@@ -32,7 +32,7 @@ local function getDeps(f)
   if f then
     deps = fileToArray(fpath)
   else
-  print("please type in dependancies line by line by their package name, end with 'EOF'")
+  print("please type in deps line by line by their package name, end with 'EOF'")
     while input ~= "EOF" do
       input = io.read()
       i = i + 1
@@ -60,6 +60,7 @@ if not errOK then
   user = io.read()
   if user == "y" then
     print("installing OCZip...")
+    fs.makeDirectory("/lib/ocz")
     shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/ocz.lua /bin/ocz.lua")
     shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/init.lua /lib/ocz/init.lua")
     shell.execute("wget https://raw.githubusercontent.com/BallOfEnergy1/OCZ/master/crc32.lua /lib/ocz/crc32.lua")
