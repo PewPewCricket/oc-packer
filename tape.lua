@@ -2,7 +2,7 @@
 local shell = require("shell")
 local fs = require("filesystem")
 local ts = require("tools/transfer")
-local ocz = require, "ocz")
+local ocz = require("ocz")
 
 local lib = {}
 
