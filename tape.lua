@@ -24,7 +24,7 @@ end
 function lib.makePkg(path, deps, name, ver, destdir)
   -- Declare Vars
   local pkgdir = "/usr/pkg/build"
-  local tardir = "/usr/pkg/tars/" .. name .. ".tar"
+  local tar = "/usr/pkg/tars/" .. name .. ".tar"
 
   -- Generate Package Information
   fs.makeDirectory("/usr/pkg")
@@ -67,15 +67,15 @@ function lib.makePkg(path, deps, name, ver, destdir)
 
   -- Create tar archive
   shell.setWorkingDirectory(pkgdir)
-     shell.execute("tar -cf " .. tardir .. " " .. pkgdir .. "/")
+     shell.execute("tar -cf " .. tar .. " " .. pkgdir .. "/")
   shell.setWorkingDirectory(destdir)
 
   -- Compress tar archive
-  ocz.compressFile(tardir, destdir .. "/" .. name .. ".tar.ocz")
+  ocz.compressFile(tar, destdir .. "/" .. name .. ".tar.ocz")
 
   -- Remove temp data
   fs.remove(pkgdir)
-  fs.remove(tardir)
+  fs.remove(tar)
   fs.remove("/usr/pkg/pkgbuild/" .. name .. "-" .. ver)
 end
 
