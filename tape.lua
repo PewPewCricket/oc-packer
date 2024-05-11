@@ -22,25 +22,13 @@ end
 
 -- Functions
 function lib.makePkg(path, deps, name, ver, destdir)
-
-  -- Check for errors
-  if not fs.exists(path) then
-    handleError(path .. " is an invalid path")
-  elseif not fs.exists(destdir) then
-    handleError(destdir .. " is an invalid path")
-  elseif name == nil then
-    handleError("name set failure")
-  elseif ver == nil then
-    handleError("version set failure")
-  end
-
-  local pkgdir = "/usr/pkg/pkgbuild/" .. name .. "-" .. ver
-  local pkgtar = "/usr/pkg/pkgtars/" .. name .. ".tar"
+  -- Declare Vars
+  local pkgdir = "/usr/pkg/build"
+  local tardir = "/usr/pkg/tars/" .. name .. ".tar"
 
   -- Generate Package Information
   fs.makeDirectory("/usr/pkg")
-  fs.makeDirectory("/usr/pkg/pkgbuild")
-  fs.makeDirectory("/usr/pkg/pkgtars")
+  fs.makeDirectory("/usr/pkg/tars")
   fs.makeDirectory(pkgdir)
 
   local infofile = io.open(pkgdir .. "/pkginfo", "w")
@@ -56,7 +44,7 @@ function lib.makePkg(path, deps, name, ver, destdir)
   infofile:close()
   depsfile:close()
 
-  -- copy data from PATH to temp dir
+  -- Copy data from PATH to temp dir
   local cops =
   {
     cmd = "cp",
@@ -77,22 +65,33 @@ function lib.makePkg(path, deps, name, ver, destdir)
 
   ts.batch(cargs, cops)
 
-  -- create tar archive
+  -- Create tar archive
   shell.setWorkingDirectory(pkgdir)
-     shell.execute("tar -cf " .. pkgtar .. " " .. pkgdir .. "/")
+     shell.execute("tar -cf " .. tardir .. " " .. pkgdir .. "/")
   shell.setWorkingDirectory(destdir)
 
-  -- compress tar archive
-  ocz.compressFile(pkgtar, destdir .. "/" .. name .. ".tar.ocz")
+  -- Compress tar archive
+  ocz.compressFile(tardir, destdir .. "/" .. name .. ".tar.ocz")
 
   -- Remove temp data
   fs.remove(pkgdir)
-  fs.remove(pkgtar)
+  fs.remove(tardir)
   fs.remove("/usr/pkg/pkgbuild/" .. name .. "-" .. ver)
 end
 
-function lib.installPkg(path, destdir)
-  print("wip")
+function lib.installPkg(path, destdir) 
+  -- Declare Vars
+  local pkgdir = "/usr/pkg/extract"
+  local tardir = "/usr/pkg/tars"
+  
+  -- Decompress Archive
+  ocz.decompressFile(path, tardir .. "/package.tar")
+
+  -- Untar Archive
+  shell.execute("tar -xf " .. tardir .. "/package.tar " .. pkgdir)
+
+  -- Copy files to final location
+  
 end
 
 return lib
